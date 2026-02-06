@@ -647,4 +647,5 @@ function formatElapsed(startTime) {
 
 
 
-client.login(TOKEN);
+
+process.env.DISCORD_TOKEN
