@@ -1,3 +1,11 @@
+process.on("unhandledRejection", err => {
+  console.error("Unhandled promise:", err);
+});
+
+process.on("uncaughtException", err => {
+  console.error("Uncaught exception:", err);
+});
+
 console.log("🚀 index.js file loaded");
 require('dotenv').config();
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
@@ -649,3 +657,4 @@ function formatElapsed(startTime) {
 
 
 process.env.DISCORD_TOKEN
+
