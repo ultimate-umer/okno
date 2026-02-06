@@ -46,7 +46,7 @@ async function check(username) {
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const ALLOWED_USER_IDS = process.env.ALLOWED_USER_IDS ? process.env.ALLOWED_USER_IDS.split(',') : [];
-const CHECK_INTERVAL = parseInt(process.env.CHECK_INTERVAL) || 90000;
+const CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
 let watchedAccounts = {}; 
 let storedFollowerData = {};  
@@ -656,5 +656,6 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
