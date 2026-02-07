@@ -46,42 +46,36 @@ async function mobileCheck(username) {
 }
 
 async function check(username) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8 sec max
+
     try {
         const res = await fetch(`https://www.instagram.com/${username}/`, {
-            method: "GET",
+            signal: controller.signal,
             headers: {
                 "User-Agent":
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36",
                 "Accept": "text/html,application/xhtml+xml",
-                "Accept-Language": "en-US,en;q=0.9",
-                "Cache-Control": "no-cache",
-                "Pragma": "no-cache"
+                "Accept-Language": "en-US,en;q=0.9"
             }
         });
 
         const html = await res.text();
+        clearTimeout(timeout);
 
-        // ❌ ACCOUNT NOT AVAILABLE / BANNED
         if (
             res.status === 404 ||
             html.includes("Sorry, this page isn't available") ||
-            html.includes("The link you followed may be broken") ||
             html.includes("/accounts/login/") ||
-            html.includes("challenge") ||
             html.length < 1500
-        ) {
-            return "BANNED";
-        }
+        ) return "BANNED";
 
-        // ✅ ACCOUNT EXISTS
-        if (html.includes("profilePage_")) {
-            return "ACTIVE";
-        }
+        if (html.includes("profilePage_")) return "ACTIVE";
 
         return "UNKNOWN";
 
-    } catch (err) {
-        console.error("CHECK ERROR:", err);
+    } catch (e) {
+        clearTimeout(timeout);
         return "ERROR";
     }
 }
@@ -759,6 +753,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
