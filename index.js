@@ -17,9 +17,9 @@ var bancache = {};
 var unbancache = {};
 
 async function check(username) {
-    const req = await fetch("https://instagram.com/"+username+'/', {
-        "credentials": "omit",
-        "headers": {
+    const req = await fetch("https://instagram.com/" + username + '/', {
+        credentials: "omit",
+        headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0",
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
@@ -31,31 +31,28 @@ async function check(username) {
             "Sec-Fetch-User": "?1",
             "Priority": "u=4"
         },
-        "method": "GET",
-        "mode": "cors"
+        method: "GET",
+        mode: "cors"
     });
+
     const res = await req.text();
-    console.log(req)
-    const sp =res.split('<meta property="og:description" content="');
-    console.log(sp.length);
-// ⬇️ JUST REPLACE return LOGIC
-if (
-    res.includes("challenge") ||
-    res.includes("login") ||
-    res.length < 800
-) {
-    return "BLOCKED";
-}
+    const sp = res.split('<meta property="og:description" content="');
 
-if (sp.length > 1) {
-    const info = sp[1].split('-')[0].trim();
-    return info;
-}
-
-return "UNKNOWN";
-
+    if (
+        res.includes("challenge") ||
+        res.includes("login") ||
+        res.length < 800
+    ) {
+        return "BLOCKED";
     }
+
+    if (sp.length > 1) {
+        return sp[1].split('-')[0].trim();
+    }
+
+    return "UNKNOWN";
 }
+
 
 const TOKEN = process.env.DISCORD_TOKEN;
 const ALLOWED_USER_IDS = process.env.ALLOWED_USER_IDS ? process.env.ALLOWED_USER_IDS.split(',') : [];
@@ -696,6 +693,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
