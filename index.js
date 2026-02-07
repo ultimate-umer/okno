@@ -78,7 +78,6 @@ async function check(username) {
         clearTimeout(timeout);
         return "ERROR";
     }
-}
 
   
 
@@ -753,6 +752,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
