@@ -46,23 +46,46 @@ async function mobileCheck(username) {
 }
 
 async function check(username) {
-    const req = await fetch("https://instagram.com/" + username + '/', {
-        credentials: "omit",
-             headers: {
-            "User-Agent": randomUA(),
-            "Accept": "text/html,application/xhtml+xml",
-            "Accept-Language": "en-US,en;q=0.9",
-            "Sec-GPC": "1",
-            "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Sec-Fetch-User": "?1",
-            "Priority": "u=4"
-        },
-        method: "GET",
-        mode: "cors"
-    });
+    try {
+        const res = await fetch(`https://www.instagram.com/${username}/`, {
+            method: "GET",
+            headers: {
+                "User-Agent":
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+        });
+
+        const html = await res.text();
+
+        // ❌ ACCOUNT NOT AVAILABLE / BANNED
+        if (
+            res.status === 404 ||
+            html.includes("Sorry, this page isn't available") ||
+            html.includes("The link you followed may be broken") ||
+            html.includes("/accounts/login/") ||
+            html.includes("challenge") ||
+            html.length < 1500
+        ) {
+            return "BANNED";
+        }
+
+        // ✅ ACCOUNT EXISTS
+        if (html.includes("profilePage_")) {
+            return "ACTIVE";
+        }
+
+        return "UNKNOWN";
+
+    } catch (err) {
+        console.error("CHECK ERROR:", err);
+        return "ERROR";
+    }
+}
+
   
 
     const res = await req.text();
@@ -736,6 +759,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
