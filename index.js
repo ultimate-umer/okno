@@ -8,6 +8,7 @@ process.on("uncaughtException", err => {
 
 console.log("🚀 index.js file loaded");
 require('dotenv').config();
+const statusHistory = {};
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const fetch = require("node-fetch");
 
@@ -37,10 +38,22 @@ async function check(username) {
     console.log(req)
     const sp =res.split('<meta property="og:description" content="');
     console.log(sp.length);
-    if (sp.length>1) {
-        return sp[1].split('-')[0];
-    } else {
-        return 'N/A'
+// ⬇️ JUST REPLACE return LOGIC
+if (
+    res.includes("challenge") ||
+    res.includes("login") ||
+    res.length < 800
+) {
+    return "BLOCKED";
+}
+
+if (sp.length > 1) {
+    const info = sp[1].split('-')[0].trim();
+    return info;
+}
+
+return "UNKNOWN";
+
     }
 }
 
@@ -112,6 +125,22 @@ function riskLevel(score) {
 function fakeLastSeen() {
     return `${rand(3, 55)} minutes ago`;
 }
+function pushStatus(username, status) {
+    if (!statusHistory[username]) statusHistory[username] = [];
+    statusHistory[username].push(status);
+    if (statusHistory[username].length > 3) {
+        statusHistory[username].shift();
+    }
+}
+
+function confirmed(username, value) {
+    return (
+        statusHistory[username] &&
+        statusHistory[username].length === 3 &&
+        statusHistory[username].every(s => s === value)
+    );
+}
+
 
 function fakeFlags() {
     const flags = [
@@ -299,7 +328,15 @@ const cmd = args[0].toLowerCase();
                     const timeDifference = Math.abs(currentTime - startTime) / 1000;
                     const timeDifferenceMinutes = Math.floor(timeDifference / 60);
 
-                    if (infoa.length > 3 && !hasSentEmbed) {
+pushStatus(username, infoa);
+
+if (
+    infoa !== "BLOCKED" &&
+    confirmed(username, infoa) &&
+    infoa.length > 3 &&
+    !hasSentEmbed
+) {
+
             const embed = new EmbedBuilder()
                 .setTitle(`Account has been reactivated Successfully! | ${username} ✅`)
                 .setImage('https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZm13NTM3dDJvbW85dDY5bnlhZGZjZ2h4NHdqeG54ZDRqdHpwdnlvdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/NyInHmE9k7vDG/giphy.gif')
@@ -371,7 +408,10 @@ const cmd = args[0].toLowerCase();
             banWatchList.push(username);
             const intv = setInterval(async function() {
                 const infoa = await check(username)
-                if (infoa.length == 3) {
+pushStatus(username, infoa);
+
+if (infoa !== "BLOCKED" && confirmed(username, infoa) && infoa.length == 3) {
+
                     const currentTime = Date.now()
                     const timeDifference = Math.abs(currentTime - startTime) / 1000;
                     const timeDifferenceMinutes = Math.floor(timeDifference / 60);
@@ -656,6 +696,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
