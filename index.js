@@ -538,6 +538,7 @@ if (infoa !== "BLOCKED" && confirmed(username, infoa) && infoa.length == 3) {
             { name: "📃 !unbanlist", value: "List all unban-watched accounts" },
 
             { name: "🔑 !giveaccess <user id>", value: "Grant bot access to a user" },
+            { name: " ⋆༺𓆩 𝐊𝐄𝐍𝐆 ☠︎︎ 𝐔𝐌𝟑𝐑 𓆪༻⋆ " },
             { name: "❓ !help", value: "Show this help menu" }
         )
             .setColor(0x000000)
@@ -735,6 +736,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
