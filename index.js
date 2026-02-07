@@ -10,19 +10,48 @@ console.log("🚀 index.js file loaded");
 require('dotenv').config();
 const statusHistory = {};
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const fetch = require("node-fetch");
+const USER_AGENTS = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 13_6) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
+  "Mozilla/5.0 (X11; Linux x86_64) Gecko/20100101 Firefox/122.0",
+  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+];
 
+function randomUA() {
+  return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
+}
 
 var bancache = {};
 var unbancache = {};
 
+async function mobileCheck(username) {
+  try {
+    const res = await fetch(
+      `https://i.instagram.com/api/v1/users/web_profile_info/?username=${username}`,
+      {
+        headers: {
+          "User-Agent": "Instagram 312.0.0.34.111 Android",
+          "X-IG-App-ID": "936619743392459"
+        }
+      }
+    );
+
+    const json = await res.json();
+
+    if (!json?.data?.user) return "REMOVED";
+    return "ACTIVE";
+  } catch {
+    return "BLOCKED";
+  }
+}
+
 async function check(username) {
     const req = await fetch("https://instagram.com/" + username + '/', {
         credentials: "omit",
-        headers: {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:130.0) Gecko/20100101 Firefox/130.0",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
+             headers: {
+            "User-Agent": randomUA(),
+            "Accept": "text/html,application/xhtml+xml",
+            "Accept-Language": "en-US,en;q=0.9",
             "Sec-GPC": "1",
             "Upgrade-Insecure-Requests": "1",
             "Sec-Fetch-Dest": "document",
@@ -34,6 +63,7 @@ async function check(username) {
         method: "GET",
         mode: "cors"
     });
+  
 
     const res = await req.text();
     const sp = res.split('<meta property="og:description" content="');
@@ -171,7 +201,11 @@ function formatTimestamp(date) {
 async function monitorAccount(message, username, url, expectedStatus, startTime, watchType) {
     while (watchedAccounts[username]) {
         try {
-            const info = await check(username);
+            const info =
+  Math.random() < 0.5
+    ? await check(username)
+    : await mobileCheck(username);
+
             console.log(`Monitoring ${username}`);
             const currentTime = Date.now()
             const timeDifference = Math.abs(currentTime - startTime) / 1000;
@@ -300,7 +334,11 @@ const cmd = args[0].toLowerCase();
         const url = `https://www.instagram.com/${username}/?hl=en`;
         const startTime = new Date();
 
-        const info = await check(username);
+const info =
+  Math.random() < 0.5
+    ? await check(username)
+    : await mobileCheck(username);
+
 
         if (info.length == 3) {
             const embed = new EmbedBuilder()
@@ -320,7 +358,11 @@ const cmd = args[0].toLowerCase();
             const intv = setInterval(async function() {
                 try {
                     const elapsed = formatElapsed(startTime);
-                    const infoa = await check(username);
+                    const infoa =
+  Math.random() < 0.5
+    ? await check(username)
+    : await mobileCheck(username);
+
                     const currentTime = Date.now();
                     const timeDifference = Math.abs(currentTime - startTime) / 1000;
                     const timeDifferenceMinutes = Math.floor(timeDifference / 60);
@@ -693,6 +735,7 @@ function formatElapsed(startTime) {
 
 
 client.login(process.env.DISCORD_TOKEN);
+
 
 
 
